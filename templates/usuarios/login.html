@@ -41,7 +41,7 @@
                 </nav>
             </section>
             <section class="galeria" style="margin-left: 5em">
-                <form action="" method="">
+                <form action="{% url 'login' %}" method="POST">
                     <!-- por medidas de segurança -->
                     {% csrf_token %}
                     <div class="row">
