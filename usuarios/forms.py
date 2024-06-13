@@ -73,3 +73,28 @@ class CadastroForms(forms.Form):
             }
         )
     )
+
+    #método para validar o nome do usuário durante o cadastro
+    def clean_nome_cadastro(self):
+        nome = self.cleaned_data.get('nome_cadastro')
+
+        #caso o nome esteja correto
+        if nome: 
+            nome = nome.strip()
+            #validação p/ tratar espaços vazios
+            if " " in nome:
+                raise forms.ValidationError('Espaços não são permitidos nesse campo')
+            else:
+                return nome
+    
+    #validando as senhas
+    def clean_senha_2(self):
+        senha_1 = self.cleaned_data.get('senha_1')
+        senha_2 = self.cleaned_data.get('senha_2')
+
+        #validando as duas senhas 
+        if senha_1 and senha_2:
+            if senha_1 != senha_2:
+                raise forms.ValidationError('Senhas não são iguais')
+            else:
+                return senha_2
