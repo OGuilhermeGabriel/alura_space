@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from apps.galeria.models import Fotografia
+from apps.galeria.forms import FotografiaForms
 from django.contrib import messages
 
 def index(request):
@@ -32,7 +33,20 @@ def buscar(request):
 
 
 def nova_imagem(request):
-    return render(request, 'galeria/nova_imagem.html')
+    if not request.user.is_authenticated:
+        messages.error(request,'Usuário não logado')
+        return redirect('login')
+
+    form = FotografiaForms
+    if request.method == 'POST':
+        form = FotografiaForms(request.POST)
+        #validar formulário
+        if form.is_valid():
+            #salvar o formulário no banco de dados
+            form.save()
+            messages.success(request,'Nova fotografia cadastrada')
+            return redirect('index')
+    return render(request, 'galeria/nova_imagem.html', {'form': form})
 
 def editar_imagem(request):
     pass
