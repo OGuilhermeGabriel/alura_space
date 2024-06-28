@@ -29,9 +29,9 @@ def buscar(request):
         if nome_a_buscar:
             fotografias = fotografias.filter(nome__icontains=nome_a_buscar)
 
-    return render(request, "galeria/buscar.html", {'cards':fotografias})
+    return render(request, "galeria/index.html", {'cards':fotografias})
 
-
+#criar um formulário, preencher ele com as informações da nova fotografia
 def nova_imagem(request):
     if not request.user.is_authenticated:
         messages.error(request,'Usuário não logado')
@@ -48,8 +48,30 @@ def nova_imagem(request):
             return redirect('index')
     return render(request, 'galeria/nova_imagem.html', {'form': form})
 
-def editar_imagem(request):
-    pass
+#acessar e preencher um formulário de uma fotografia já existente com inforções diferentes e salvar
+def editar_imagem(request, foto_id):
+    #armazenando na var "fotografia" todas as informações daquela fotografia específica -> identificando a fotografia
+    fotografia = Fotografia.objects.get(id= foto_id)
+    form = FotografiaForms(instance= fotografia)
 
-def deletar_imagem(request):
-    pass
+    if request.method == 'POST':
+        form = FotografiaForms(request.POST, request.FILES, instance= fotografia)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Fotografia editada com sucesso!')
+            return redirect('index')
+
+    return render(request, 'galeria/editar_imagem.html', {'form' : form, 'foto_id' : foto_id})
+
+#acessar e deletar a fotografia
+def deletar_imagem(request, foto_id):
+    fotografia = Fotografia.objects.get(id=foto_id)
+    fotografia.delete()
+    messages.success(request, 'Fotografia deletada com sucesso!')
+    return redirect('index')
+
+def filtro(request, categoria):
+    #filtrando as fotos
+    fotografias = Fotografia.objects.order_by('data_fotografia').filter(publicada= True, categoria= categoria)
+
+    return render(request,'galeria/index.html', {'cards' : fotografias})
